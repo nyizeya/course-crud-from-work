@@ -13,6 +13,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,6 +33,7 @@ public class CourseController {
                 @RequestParam Optional<Course.Level> level,
                 @RequestParam Optional<Integer> pageNumber,
                 @RequestParam Optional<Integer> size,
+                Principal principal,
                 ModelMap model
             ) {
 
@@ -41,6 +43,7 @@ public class CourseController {
         Page<Course> coursePage = courseService.search(name, level, PageRequest.of(currentPage - 1, pageSize));
 
         model.put("courses", coursePage);
+        model.put("username", principal.getName());
 
         int totalPages = coursePage.getTotalPages();
 

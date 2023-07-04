@@ -9,6 +9,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.Optional;
 
 @Controller
@@ -19,7 +20,8 @@ public class InstructorController {
     private final InstructorService instructorService;
 
     @GetMapping
-    public String search(@RequestParam Optional<String> name, ModelMap model) {
+    public String search(@RequestParam Optional<String> name, Principal principal, ModelMap model) {
+        model.put("username", principal.getName());
         model.put("instructors", instructorService.search(name));
         return "instructor/index";
     }
