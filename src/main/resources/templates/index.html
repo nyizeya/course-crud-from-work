@@ -24,7 +24,7 @@
               <a th:href="@{/instructors}" class="nav-link">Check Instructors</a>
           </li>
           <li class="nav-item">
-              <p class="nav-link" th:text="${username}"></p>
+              <a href="#" class="nav-link" th:text="${username}"></a>
           </li>
       </ul>
       <form th:action="@{/courses}" method="get" class="d-flex gap-2" role="search">
