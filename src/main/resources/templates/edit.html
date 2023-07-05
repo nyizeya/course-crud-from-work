@@ -21,6 +21,7 @@
 
 <div class="container mt-4 ">
   <div class="col-6 mx-auto">
+      <h2><a th:href="@{/courses}" class="nav-link text-primary">Courses</a> </h2>
       <h3>Edit/Create Course</h3>
     <form th:action="@{/courses/save}" method="post" th:object="${course}">
         <input type="hidden" th:field="*{id}">
@@ -40,7 +41,7 @@
         <div class="mb-3 row">
             <div class="col">
                 <label class="form-label">Start Date</label>
-                <input type="text" th:field="*{startDate}" class="form-control" name="startDate" id="my_date_picker">
+                <input type="text" readonly="readonly" th:field="*{startDate}" class="form-control" name="startDate" id="my_date_picker">
                 <p class="text-danger" th:errors="*{startDate}"></p>
             </div>
             <div class="col">

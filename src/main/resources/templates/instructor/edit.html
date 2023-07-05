@@ -11,6 +11,7 @@
 
 <div class="container mt-4 ">
     <div class="col-6 mx-auto">
+        <h2><a th:href="@{/instructors}" class="nav-link text-primary">Instructors</a> </h2>
         <h3>Edit/Create Instructor</h3>
         <form th:action="@{/instructors}" th:object="${instructor}" method="post">
             <input type="hidden" th:field="*{id}">

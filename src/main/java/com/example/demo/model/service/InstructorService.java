@@ -46,10 +46,19 @@ public class InstructorService {
     }
 
     public Instructor saveInstructor(Instructor instructor) {
-        if (instructor.getId() == null) {
+
+        if (null == instructor.getId()) {
             instructor.setPassword(passwordEncoder.encode(instructor.getPassword()));
-        } else if (!(instructor.getPassword().length() > 40)) {
-            instructor.setPassword(passwordEncoder.encode(instructor.getPassword()));
+        }
+
+        if (null != instructor.getId()) {
+            Instructor savedInstructor = findInstructorById(instructor.getId());
+
+            if (passwordEncoder.matches(instructor.getPassword(), savedInstructor.getPassword())) {
+                instructor.setPassword(savedInstructor.getPassword());
+            } else {
+                instructor.setPassword(passwordEncoder.encode(instructor.getPassword()));
+            }
         }
 
         return instructorRepo.save(instructor);

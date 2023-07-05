@@ -15,12 +15,13 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Controller
-@RequestMapping("/courses")
+@RequestMapping({"/", "/courses"})
 @RequiredArgsConstructor
 public class CourseController {
 
@@ -80,9 +81,16 @@ public class CourseController {
     }
 
     @GetMapping("/delete/{id}")
-    public String deleteCourse(@PathVariable Long id) {
+    public String deleteCourse(
+            @PathVariable Long id,
+            @RequestParam(required = false, defaultValue = "") String name,
+            @RequestParam Optional<Course.Level> level,
+            @RequestParam(required = false, defaultValue = "0") Integer pageNumber,
+            @RequestParam(required = false, defaultValue = "5") Integer size
+    ) {
+        String theLevel = level.map(Enum::name).orElse("");
         courseService.deleteCourse(id);
-        return "redirect:/courses";
+        return String.format("redirect:/courses?name=%s&level=%s&pageNumber=%d&size=%d", name, theLevel, pageNumber, size);
     }
 
     @ModelAttribute(name = "levels")

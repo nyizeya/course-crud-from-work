@@ -29,10 +29,11 @@
       </ul>
       <form th:action="@{/courses}" method="get" class="d-flex gap-2" role="search">
         <div class="d-flex gap-2">
-            <input type="text" name="name" placeholder="Search Name" class="form-control">
+            <input type="text" name="name" placeholder="Search Name" th:value="${param.name}" class="form-control">
             <select name="level" class="form-select">
                 <option value="">Select Level</option>
-                <option th:each="level: ${levels}" th:value="${level}" th:text="${level}"></option>
+                <option th:each="level: ${levels}" th:value="${level}"
+                        th:text="${level}" th:selected="${#strings.equals(param.level, level)}"></option>
             </select>
         </div>
         <button class="btn btn-outline-success" type="submit">Search</button>
@@ -77,7 +78,9 @@
                         <a th:href="@{/courses/edit(id=*{course.id})}" class="btn btn-outline-warning">
                             <i class="bi bi-pencil-square"></i>
                         </a>
-                        <a th:href="@{/courses/delete/{id}(id=*{course.id})}" class="btn btn-outline-danger">
+                        <a th:href="@{/courses/delete/{id}(id=*{course.id},name=${param.name},level=${param.level},
+                        pageNumber=${param.pageNumber}, size=${param.size})}"
+                           onclick="return confirm('Are you sure?')" class="btn btn-outline-danger">
                             <i class="bi bi-trash"></i>
                         </a>
                     </td>
@@ -92,7 +95,7 @@
 
         <ul th:if="${courses.totalPages > 0}" class="pagination" >
             <li class="page-item" th:each="pageNumber: ${pageNumbers}">
-                <a th:href="@{/courses(pageNumber=${pageNumber}, pageSize=${courses.size})}"
+                <a th:href="@{/courses(name=${param.name}, level=${param.level}, pageNumber=${pageNumber}, size=${courses.size})}"
                    th:text="${pageNumber}" th:class="${pageNumber == courses.number + 1} ? 'active'" th:classappend="page-link"></a>
             </li>
 
