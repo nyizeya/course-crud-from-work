@@ -12,7 +12,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.formLogin()
-                        .defaultSuccessUrl("/courses", true);
+                .defaultSuccessUrl("/courses", true);
 
 
         http.authorizeRequests()

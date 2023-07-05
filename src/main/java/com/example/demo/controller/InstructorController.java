@@ -5,6 +5,7 @@ import com.example.demo.model.entity.Instructor;
 import com.example.demo.model.service.InstructorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -32,8 +33,16 @@ public class InstructorController {
 
     @GetMapping("edit")
     public String edit(@RequestParam Optional<Long> id, ModelMap model) {
-        model.put("instructor", id.map(instructorService::findInstructorById).orElse(new Instructor()));
-        model.put("edit", id.isPresent());
+        Instructor instructor = id.map(instructorService::findInstructorById).orElse(new Instructor());
+        model.put("instructor", instructor);
+
+        boolean isEdit = id.isPresent();
+        model.put("edit", isEdit);
+
+        if (isEdit) {
+            model.put("instructorId", instructor.getId());
+        }
+
         return "instructor/edit";
     }
 
@@ -52,10 +61,11 @@ public class InstructorController {
     public String changePassword(
             @RequestParam Long id,
             @RequestParam String currentPassword,
-            @RequestParam String newPassword
+            @RequestParam String newPassword,
+            @RequestParam String confirmPassword
     ) {
 
-        instructorService.changePassword(id, currentPassword, newPassword);
+        instructorService.changePassword(id, currentPassword, newPassword, confirmPassword);
 
         return "redirect:/instructors/edit?id=" + id;
     }
@@ -64,6 +74,17 @@ public class InstructorController {
     public String delete(@PathVariable Long id) {
         instructorService.removeInstructorById(id);
         return "redirect:/instructors";
+    }
+
+    @GetMapping("check-password")
+    public ResponseEntity<Boolean> checkPassword(
+            @RequestParam Long id,
+            @RequestParam String password
+    ) {
+
+        Boolean result = instructorService.checkPassword(id, password);
+
+        return ResponseEntity.ok(result);
     }
 
     @ExceptionHandler({EntityNotFoundException.class})

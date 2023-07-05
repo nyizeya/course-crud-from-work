@@ -68,21 +68,34 @@ public class InstructorService {
         return instructorRepo.findInstructorByEmail(username);
     }
 
-    public void changePassword(Long id, String currentPassword, String newPassword) {
+    public void changePassword(Long id, String currentPassword, String newPassword, String confirmPassword) {
 
         Instructor instructor = findInstructorById(id);
 
         if (passwordEncoder.matches(currentPassword, instructor.getPassword())) {
 
-            if (currentPassword.equals(newPassword)) {
-                return;
+            if (newPassword.equals(confirmPassword)) {
+                if (currentPassword.equals(newPassword)) {
+                    return;
+                }
+
+                instructor.setPassword(passwordEncoder.encode(newPassword));
+
+                instructorRepo.save(instructor);
             }
 
-            instructor.setPassword(passwordEncoder.encode(newPassword));
-
-            instructorRepo.save(instructor);
         }
 
+    }
+
+    public boolean checkPassword(Long id, String password) {
+        Instructor instructor = findInstructorById(id);
+
+        if (passwordEncoder.matches(password, instructor.getPassword())) {
+            return true;
+        }
+
+        return false;
     }
 
 }

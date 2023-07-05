@@ -15,7 +15,7 @@
 
         <div class="d-flex gap-3">
             <h3>Edit/Create Instructor</h3>
-            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            <button th:if="${#strings.equalsIgnoreCase('true', edit)}" type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
                 Change Password
             </button>
         </div>
@@ -43,7 +43,7 @@
             </div>
             <div class="mb-3">
                 <label for="phone" class="form-label">Instructor Phone</label>
-                <input type="tel" id="phone" th:field="*{phone}" class="form-control">
+                <input type="tel" pattern="[0-9]+" id="phone" th:field="*{phone}" class="form-control">
                 <p class="text-danger" th:errors="*{phone}"></p>
             </div>
             <div>
@@ -74,6 +74,7 @@
                     <div class="mb-3" >
                         <label for="currentPassword" class="form-label">Current Password</label>
                         <input type="password" name="currentPassword" id="currentPassword" class="form-control">
+                        <p id="currentPasswordError" class="text-danger"></p>
                     </div>
                     <div class="mb-3" >
                         <label for="newPassword" class="form-label">New Password</label>
@@ -95,57 +96,9 @@
     </div>
 </div>
 
-<script>
-    let newPassword = document.getElementById('newPassword')
-    let newPasswordError = document.getElementById('newPasswordError')
+<button id="check-password" class="btn btn-primary">Check Password</button>
 
-    let confirmPassword = document.getElementById('confirmPassword')
-    let confirmPasswordError = document.getElementById('confirmPasswordError')
-
-    let saveBtn = document.getElementById("saveBtn")
-    let closeBtn = document.getElementById("closeBtn")
-    let passwordChangeForm = document.getElementById("passwordChangeForm")
-
-    let error = false
-
-    saveBtn.addEventListener('click', () => {
-        closeBtn.click()
-        passwordChangeForm.submit()
-    })
-
-    newPassword.addEventListener('change', (e) => {
-        if (newPassword.value.length < 8) {
-            newPasswordError.innerText = 'At least 8 characters required'
-            alterErrorTrue()
-        } else {
-            newPasswordError.innerText = ''
-        }
-
-    })
-
-    confirmPassword.addEventListener('change', (e) => {
-        if (newPassword.value !== confirmPassword.value) {
-            confirmPasswordError.innerText = "Passwords don't match"
-            alterErrorTrue()
-        } else {
-            confirmPasswordError.innerText = ""
-            alterErrorFalse()
-        }
-
-    })
-
-    function alterErrorTrue() {
-        error = true
-        saveBtn.disabled = error;
-    }
-
-    function alterErrorFalse() {
-        error = false
-        saveBtn.disabled = error;
-    }
-
-
-</script>
+<script th:src="@{/js/checkpassword.js}"></script>
 
 </body>
 </html>
