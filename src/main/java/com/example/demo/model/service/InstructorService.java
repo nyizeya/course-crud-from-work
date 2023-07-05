@@ -51,21 +51,38 @@ public class InstructorService {
             instructor.setPassword(passwordEncoder.encode(instructor.getPassword()));
         }
 
-        if (null != instructor.getId()) {
-            Instructor savedInstructor = findInstructorById(instructor.getId());
-
-            if (passwordEncoder.matches(instructor.getPassword(), savedInstructor.getPassword())) {
-                instructor.setPassword(savedInstructor.getPassword());
-            } else {
-                instructor.setPassword(passwordEncoder.encode(instructor.getPassword()));
-            }
-        }
+//        if (null != instructor.getId()) {
+//            Instructor savedInstructor = findInstructorById(instructor.getId());
+//
+//            if (passwordEncoder.matches(instructor.getPassword(), savedInstructor.getPassword())) {
+//                instructor.setPassword(savedInstructor.getPassword());
+//            } else {
+//                instructor.setPassword(passwordEncoder.encode(instructor.getPassword()));
+//            }
+//        }
 
         return instructorRepo.save(instructor);
     }
 
     public Instructor loadInstructorByUsername(String username) {
         return instructorRepo.findInstructorByEmail(username);
+    }
+
+    public void changePassword(Long id, String currentPassword, String newPassword) {
+
+        Instructor instructor = findInstructorById(id);
+
+        if (passwordEncoder.matches(currentPassword, instructor.getPassword())) {
+
+            if (currentPassword.equals(newPassword)) {
+                return;
+            }
+
+            instructor.setPassword(passwordEncoder.encode(newPassword));
+
+            instructorRepo.save(instructor);
+        }
+
     }
 
 }

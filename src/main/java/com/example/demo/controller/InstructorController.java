@@ -1,13 +1,17 @@
 package com.example.demo.controller;
 
+import com.example.demo.model.HttpResponse;
 import com.example.demo.model.entity.Instructor;
 import com.example.demo.model.service.InstructorService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.Optional;
@@ -29,6 +33,7 @@ public class InstructorController {
     @GetMapping("edit")
     public String edit(@RequestParam Optional<Long> id, ModelMap model) {
         model.put("instructor", id.map(instructorService::findInstructorById).orElse(new Instructor()));
+        model.put("edit", id.isPresent());
         return "instructor/edit";
     }
 
@@ -43,10 +48,35 @@ public class InstructorController {
         return "redirect:/instructors";
     }
 
+    @PostMapping("change-password")
+    public String changePassword(
+            @RequestParam Long id,
+            @RequestParam String currentPassword,
+            @RequestParam String newPassword
+    ) {
+
+        instructorService.changePassword(id, currentPassword, newPassword);
+
+        return "redirect:/instructors/edit?id=" + id;
+    }
+
     @GetMapping("delete/{id}")
     public String delete(@PathVariable Long id) {
         instructorService.removeInstructorById(id);
         return "redirect:/instructors";
+    }
+
+    @ExceptionHandler({EntityNotFoundException.class})
+    public String entityNotFound(EntityNotFoundException exception, RedirectAttributes redirectAttributes) {
+        HttpResponse response = new HttpResponse(
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND,
+                exception.getMessage()
+        );
+
+        redirectAttributes.addFlashAttribute("errorResponse", response);
+
+        return "redirect:/error-page";
     }
 
 }

@@ -11,8 +11,16 @@
 
 <div class="container mt-4 ">
     <div class="col-6 mx-auto">
-        <h2><a th:href="@{/instructors}" class="nav-link text-primary">Instructors</a> </h2>
-        <h3>Edit/Create Instructor</h3>
+        <h2><a th:href="@{/instructors}" class="nav-link text-primary"><i class="bi bi-arrow-left"></i></a> </h2>
+
+        <div class="d-flex gap-3">
+            <h3>Edit/Create Instructor</h3>
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                Change Password
+            </button>
+        </div>
+
+
         <form th:action="@{/instructors}" th:object="${instructor}" method="post">
             <input type="hidden" th:field="*{id}">
             <div class="mb-3">
@@ -25,10 +33,13 @@
                 <input type="email" id="email" th:field="*{email}" class="form-control">
                 <p class="text-danger" th:errors="*{email}"></p>
             </div>
-            <div class="mb-3">
+            <div class="mb-3" th:if="${#strings.equalsIgnoreCase('false', edit)}">
                 <label for="password" class="form-label">Instructor Password</label>
-                <input type="text" id="password" th:field="*{password}" class="form-control">
+                <input type="password" id="password" th:field="*{password}" class="form-control">
                 <p class="text-danger" th:errors="*{password}"></p>
+            </div>
+            <div th:if="${#strings.equalsIgnoreCase('true', edit)}">
+                <input type="hidden" name="password" th:field="*{password}">
             </div>
             <div class="mb-3">
                 <label for="phone" class="form-label">Instructor Phone</label>
@@ -43,6 +54,98 @@
         </form>
     </div>
 </div>
+
+<!-- Button trigger modal -->
+<!--<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">-->
+<!--    Launch demo modal-->
+<!--</button>-->
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Change Password</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="passwordChangeForm" th:action="@{/instructors/change-password}" method="post">
+                    <input type="hidden" name="id" th:field="${instructor.id}">
+                    <div class="mb-3" >
+                        <label for="currentPassword" class="form-label">Current Password</label>
+                        <input type="password" name="currentPassword" id="currentPassword" class="form-control">
+                    </div>
+                    <div class="mb-3" >
+                        <label for="newPassword" class="form-label">New Password</label>
+                        <input type="password" name="newPassword" id="newPassword" class="form-control">
+                        <p id="newPasswordError" class="text-danger"></p>
+                    </div>
+                    <div class="mb-3" >
+                        <label for="confirmPassword" class="form-label">Confirm Password</label>
+                        <input type="password" name="confirmPassword" id="confirmPassword" class="form-control">
+                        <p id="confirmPasswordError" class="text-danger"></p>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="closeBtn" data-bs-dismiss="modal">Close</button>
+                <button type="submit" id="saveBtn" disabled="disabled" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let newPassword = document.getElementById('newPassword')
+    let newPasswordError = document.getElementById('newPasswordError')
+
+    let confirmPassword = document.getElementById('confirmPassword')
+    let confirmPasswordError = document.getElementById('confirmPasswordError')
+
+    let saveBtn = document.getElementById("saveBtn")
+    let closeBtn = document.getElementById("closeBtn")
+    let passwordChangeForm = document.getElementById("passwordChangeForm")
+
+    let error = false
+
+    saveBtn.addEventListener('click', () => {
+        closeBtn.click()
+        passwordChangeForm.submit()
+    })
+
+    newPassword.addEventListener('change', (e) => {
+        if (newPassword.value.length < 8) {
+            newPasswordError.innerText = 'At least 8 characters required'
+            alterErrorTrue()
+        } else {
+            newPasswordError.innerText = ''
+        }
+
+    })
+
+    confirmPassword.addEventListener('change', (e) => {
+        if (newPassword.value !== confirmPassword.value) {
+            confirmPasswordError.innerText = "Passwords don't match"
+            alterErrorTrue()
+        } else {
+            confirmPasswordError.innerText = ""
+            alterErrorFalse()
+        }
+
+    })
+
+    function alterErrorTrue() {
+        error = true
+        saveBtn.disabled = error;
+    }
+
+    function alterErrorFalse() {
+        error = false
+        saveBtn.disabled = error;
+    }
+
+
+</script>
 
 </body>
 </html>

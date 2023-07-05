@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.model.HttpResponse;
 import com.example.demo.model.entity.Course;
 import com.example.demo.model.entity.Instructor;
 import com.example.demo.model.service.CourseService;
@@ -7,11 +8,15 @@ import com.example.demo.model.service.InstructorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
@@ -84,12 +89,19 @@ public class CourseController {
             @PathVariable Long id,
             @RequestParam(required = false, defaultValue = "") String name,
             @RequestParam Optional<Course.Level> level,
-            @RequestParam(required = false, defaultValue = "0") Integer pageNumber,
+            @RequestParam(required = false, defaultValue = "1") Integer pageNumber,
             @RequestParam(required = false, defaultValue = "5") Integer size
     ) {
         String theLevel = level.map(Enum::name).orElse("");
         courseService.deleteCourse(id);
         return String.format("redirect:/courses?name=%s&level=%s&pageNumber=%d&size=%d", name, theLevel, pageNumber, size);
+    }
+
+    @GetMapping("/error-page")
+    public String error(String viewName, Model model) {
+        HttpResponse response = (HttpResponse) model.asMap().get("errorResponse");
+        model.addAttribute("errorResponse", response);
+        return "errors/404";
     }
 
     @ModelAttribute(name = "levels")
@@ -100,6 +112,19 @@ public class CourseController {
     @ModelAttribute(name = "instructors")
     public List<Instructor> instructorList() {
         return instructorService.getAllInstructors();
+    }
+
+    @ExceptionHandler({EntityNotFoundException.class})
+    public String entityNotFound(EntityNotFoundException exception, RedirectAttributes redirectAttributes) {
+        HttpResponse response = new HttpResponse(
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND,
+                exception.getMessage()
+        );
+
+        redirectAttributes.addFlashAttribute("errorResponse", response);
+
+        return "redirect:/error-page";
     }
 
 }

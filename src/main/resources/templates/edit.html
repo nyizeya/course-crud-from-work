@@ -21,7 +21,7 @@
 
 <div class="container mt-4 ">
   <div class="col-6 mx-auto">
-      <h2><a th:href="@{/courses}" class="nav-link text-primary">Courses</a> </h2>
+      <h2><a th:href="@{/courses}" class="nav-link text-primary"><i class="bi bi-arrow-left"></i></a> </h2>
       <h3>Edit/Create Course</h3>
     <form th:action="@{/courses/save}" method="post" th:object="${course}">
         <input type="hidden" th:field="*{id}">
