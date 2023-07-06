@@ -26,7 +26,7 @@ currentPassword.addEventListener('keyup', () => {
     checkCurrentP()
 })
 
-function checkCurrentP() {
+async function checkCurrentP() {
     if (currentPassword.value.length === 0) {
         currentPasswordError.innerText = 'Enter your current password'
         error.cpE = true
@@ -38,6 +38,21 @@ function checkCurrentP() {
         if (checkErrors()) {
             saveBtn.disabled = false
         }
+    }
+
+    if (currentPassword.value.length > 0) {
+        let flag = await checkPassword()
+        if (!flag) {
+            currentPasswordError.innerText = 'Your password is wrong';
+            error.cpE = true;
+        } else {
+            currentPasswordError.innerText = '';
+            error.cpE = false
+            if (checkErrors()) {
+                saveBtn.disabled = false
+            }
+        }
+
     }
 }
 
@@ -85,22 +100,22 @@ function checkErrors() {
     return error.cpE === false && error.npE === false && error.conpE === false
 }
 
-// function alterErrorTrue() {
-//     error = true
-//     saveBtn.disabled = error;
-// }
-//
-// function alterErrorFalse() {
-//     error = false
-//     saveBtn.disabled = error;
-// }
+/*
+        Check Password Functionality
+ */
 
-let checkPasswordBtn = document.getElementById("check-password")
+let theInstructorId = document.getElementById("theInstructorId")
 
-checkPasswordBtn.addEventListener('click', (e) => {
-    let id = "<%=request.getAttribute('instructorId')%>"
-    // fetch(`http://localhost:8080/instructors/check-password?id=${id}&password=${currentPassword}`)
-    //     .then(console.log);
+async function checkPassword() {
+    let theResult = false;
+    let response = await fetch(`http://localhost:8080/instructors/check-password
+        ?id=${theInstructorId.value}&password=${currentPassword.value}`)
 
-    console.log(id, currentPassword)
-})
+    if (response.ok) {
+        let data = await response.json()
+        theResult = data['theResult']
+    }
+
+    return theResult
+
+}

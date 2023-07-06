@@ -55,11 +55,6 @@
     </div>
 </div>
 
-<!-- Button trigger modal -->
-<!--<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">-->
-<!--    Launch demo modal-->
-<!--</button>-->
-
 <!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -70,7 +65,7 @@
             </div>
             <div class="modal-body">
                 <form id="passwordChangeForm" th:action="@{/instructors/change-password}" method="post">
-                    <input type="hidden" name="id" th:field="${instructor.id}">
+                    <input type="hidden" id="theInstructorId" name="id" th:field="${instructor.id}">
                     <div class="mb-3" >
                         <label for="currentPassword" class="form-label">Current Password</label>
                         <input type="password" name="currentPassword" id="currentPassword" class="form-control">
@@ -90,13 +85,11 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" id="closeBtn" data-bs-dismiss="modal">Close</button>
-                <button type="submit" id="saveBtn" disabled="disabled" class="btn btn-primary">Save changes</button>
+                <button type="submit" id="saveBtn" onclick="checkPassword(${instructor.id})" disabled="disabled" class="btn btn-primary">Save changes</button>
             </div>
         </div>
     </div>
 </div>
-
-<button id="check-password" class="btn btn-primary">Check Password</button>
 
 <script th:src="@{/js/checkpassword.js}"></script>
 

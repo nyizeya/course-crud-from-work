@@ -15,6 +15,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -77,14 +79,17 @@ public class InstructorController {
     }
 
     @GetMapping("check-password")
-    public ResponseEntity<Boolean> checkPassword(
+    public ResponseEntity<Map<String, Boolean>> checkPassword(
             @RequestParam Long id,
             @RequestParam String password
     ) {
 
-        Boolean result = instructorService.checkPassword(id, password);
+        boolean result = instructorService.checkPassword(id, password);
 
-        return ResponseEntity.ok(result);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("theResult", result);
+
+        return ResponseEntity.ok(response);
     }
 
     @ExceptionHandler({EntityNotFoundException.class})
