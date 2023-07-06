@@ -25,6 +25,7 @@ public class UserManagementConfig {
             @Override
             public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
                 Instructor instructor = service.loadInstructorByUsername(username);
+
                 return new SecurityUser(instructor);
             }
         };

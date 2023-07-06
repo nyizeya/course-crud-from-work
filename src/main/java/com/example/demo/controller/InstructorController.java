@@ -1,8 +1,6 @@
 package com.example.demo.controller;
 
 import com.example.demo.model.HttpResponse;
-import com.example.demo.model.dto.InstructorDto;
-import com.example.demo.model.dto.mapper.InstructorMapper;
 import com.example.demo.model.entity.Instructor;
 import com.example.demo.model.service.InstructorService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +16,7 @@ import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -27,12 +26,15 @@ import java.util.Optional;
 public class InstructorController {
 
     private final InstructorService instructorService;
-    private final InstructorMapper instructorMapper;
 
     @GetMapping
     public String search(@RequestParam Optional<String> name, Principal principal, ModelMap model) {
         model.put("username", principal.getName());
-        model.put("instructors", instructorService.search(name));
+        List<Instructor> instructors = instructorService.search(name);
+
+        model.put("instructors", instructors);
+
+
         return "instructor/index";
     }
 
@@ -53,14 +55,12 @@ public class InstructorController {
 
     @PostMapping
     public String save(
-            @Valid @ModelAttribute InstructorDto instructorDto,
-            @RequestParam String password,
+            @Valid @ModelAttribute Instructor instructor,
             BindingResult result) {
         if (result.hasErrors()) {
             return "instructor/edit";
         }
 
-        Instructor instructor = instructorMapper.instructorDtoToInstructor(instructorDto);
         instructorService.saveInstructor(instructor);
 
         return "redirect:/instructors";
