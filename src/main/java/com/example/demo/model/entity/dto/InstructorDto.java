@@ -1,6 +1,5 @@
 package com.example.demo.model.entity.dto;
 
-import com.example.demo.model.entity.Course;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,8 +7,6 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -31,5 +28,4 @@ public class InstructorDto {
     @NotEmpty(message = "Please enter instructor phone")
     private String phone;
 
-    private List<Course> courses = new ArrayList<>();
 }

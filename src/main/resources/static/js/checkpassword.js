@@ -10,6 +10,7 @@ let confirmPasswordError = document.getElementById('confirmPasswordError')
 let saveBtn = document.getElementById("saveBtn")
 let closeBtn = document.getElementById("closeBtn")
 let passwordChangeForm = document.getElementById("passwordChangeForm")
+let debounceTimer
 
 let error = {
     cpE: true,
@@ -26,7 +27,43 @@ currentPassword.addEventListener('keyup', () => {
     checkCurrentP()
 })
 
-async function checkCurrentP() {
+currentPassword.addEventListener('change', () => {
+    handleCurrentPasswordInput()
+})
+
+async function checkPasswordAvailability(password) {
+
+     let flag = await fetch(`http://localhost:8080/instructors/check-password?id=${theInstructorId.value}&password=${password}`)
+        .then(response => response.json())
+        .then(data => data['theResult'] );
+
+    if (!flag) {
+        currentPasswordError.innerText = 'Your password is wrong';
+        error.cpE = true;
+    } else {
+        currentPasswordError.innerText = '';
+        error.cpE = false;
+        if (checkErrors()) {
+            saveBtn.disabled = false
+        }
+
+    }
+
+}
+
+function handleCurrentPasswordInput() {
+    // clearTimeout(debounceTimer)
+
+    let password= document.getElementById('currentPassword').value
+    checkPasswordAvailability(password)
+
+    // debounceTimer = setTimeout(() => {
+    //     checkPasswordAvailability(password)
+    // }, 600)
+
+}
+
+function checkCurrentP() {
     if (currentPassword.value.length === 0) {
         currentPasswordError.innerText = 'Enter your current password'
         error.cpE = true
@@ -40,26 +77,12 @@ async function checkCurrentP() {
         }
     }
 
-    if (currentPassword.value.length > 0) {
-        let flag = await checkPassword()
-        if (!flag) {
-            currentPasswordError.innerText = 'Your password is wrong';
-            error.cpE = true;
-        } else {
-            currentPasswordError.innerText = '';
-            error.cpE = false
-            if (checkErrors()) {
-                saveBtn.disabled = false
-            }
-        }
-
-    }
 }
 
 newPassword.addEventListener('keyup', (e) => {
     checkNewP()
     checkConPE()
-})
+});
 
 function checkNewP() {
     if (newPassword.value.length < 8) {
@@ -106,16 +129,4 @@ function checkErrors() {
 
 let theInstructorId = document.getElementById("theInstructorId")
 
-async function checkPassword() {
-    let theResult = false;
-    let response = await fetch(`http://localhost:8080/instructors/check-password
-        ?id=${theInstructorId.value}&password=${currentPassword.value}`)
 
-    if (response.ok) {
-        let data = await response.json()
-        theResult = data['theResult']
-    }
-
-    return theResult
-
-}

@@ -1,7 +1,10 @@
 package com.example.demo.controller;
 
+import com.example.demo.model.CustomInstructorMapperImpl;
 import com.example.demo.model.HttpResponse;
 import com.example.demo.model.entity.Instructor;
+import com.example.demo.model.entity.dto.InstructorDto;
+import com.example.demo.model.entity.dto.mapper.InstructorMapperImpl;
 import com.example.demo.model.service.InstructorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("instructors")
@@ -26,13 +30,15 @@ import java.util.Optional;
 public class InstructorController {
 
     private final InstructorService instructorService;
+    private final CustomInstructorMapperImpl instructorMapper;
 
     @GetMapping
     public String search(@RequestParam Optional<String> name, Principal principal, ModelMap model) {
         model.put("username", principal.getName());
         List<Instructor> instructors = instructorService.search(name);
+        List<InstructorDto> dtos = instructors.stream().map(instructorMapper::toDto).collect(Collectors.toList());
 
-        model.put("instructors", instructors);
+        model.put("instructors", dtos);
 
 
         return "instructor/index";
@@ -41,7 +47,7 @@ public class InstructorController {
     @GetMapping("edit")
     public String edit(@RequestParam Optional<Long> id, ModelMap model) {
         Instructor instructor = id.map(instructorService::findInstructorById).orElse(new Instructor());
-        model.put("instructor", instructor);
+        model.put("instructor", instructorMapper.toDto(instructor));
 
         boolean isEdit = id.isPresent();
         model.put("edit", isEdit);
@@ -55,13 +61,14 @@ public class InstructorController {
 
     @PostMapping
     public String save(
-            @Valid @ModelAttribute Instructor instructor,
+            @Valid @ModelAttribute(name = "instructor") InstructorDto instructorDto,
             BindingResult result) {
+
         if (result.hasErrors()) {
             return "instructor/edit";
         }
 
-        instructorService.saveInstructor(instructor);
+        instructorService.saveInstructor(instructorMapper.toEntity(instructorDto));
 
         return "redirect:/instructors";
     }

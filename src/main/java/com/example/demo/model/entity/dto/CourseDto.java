@@ -31,5 +31,5 @@ public class CourseDto {
     private Course.Level level;
 
     @NotNull(message = "Please select a instructor")
-    private Instructor instructor;
+    private InstructorDto instructor;
 }

@@ -1,8 +1,13 @@
 package com.example.demo.controller;
 
+import com.example.demo.model.CustomInstructorMapperImpl;
 import com.example.demo.model.HttpResponse;
 import com.example.demo.model.entity.Course;
 import com.example.demo.model.entity.Instructor;
+import com.example.demo.model.entity.dto.CourseDto;
+import com.example.demo.model.entity.dto.InstructorDto;
+import com.example.demo.model.entity.dto.mapper.CourseMapper;
+import com.example.demo.model.entity.dto.mapper.InstructorMapperImpl;
 import com.example.demo.model.service.CourseService;
 import com.example.demo.model.service.InstructorService;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +36,8 @@ public class CourseController {
 
     private final CourseService courseService;
     private final InstructorService instructorService;
+    private final CourseMapper courseMapper;
+    private final CustomInstructorMapperImpl instructorMapper;
 
     @GetMapping
     public String search(
@@ -45,7 +52,7 @@ public class CourseController {
         int currentPage = pageNumber.orElse(1);
         int pageSize = size.orElse(5);
 
-        Page<Course> coursePage = courseService.search(name, level, PageRequest.of(currentPage - 1, pageSize));
+        Page<CourseDto> coursePage = courseService.search(name, level, PageRequest.of(currentPage - 1, pageSize));
 
         model.put("courses", coursePage);
         model.put("username", principal.getName());
@@ -69,17 +76,21 @@ public class CourseController {
             ModelMap model
     ) {
 
-        model.put("course", id.map(courseService::findCourseById).orElse(new Course()));
+        Course course = id.map(courseService::findCourseById).orElse(new Course());
+        CourseDto courseDto = courseMapper.toDto(course);
+
+        model.put("course", courseDto);
         return "edit";
     }
 
     @PostMapping("save")
-    public String saveCourse(@Valid @ModelAttribute Course course, BindingResult result) {
+    public String saveCourse(@Valid @ModelAttribute(name = "course") CourseDto courseDto, BindingResult result) {
+
         if (result.hasErrors()) {
             return "edit";
         }
 
-        courseService.createCourse(course);
+        courseService.createCourse(courseMapper.toEntity(courseDto));
 
         return "redirect:/courses";
     }
@@ -110,8 +121,10 @@ public class CourseController {
     }
 
     @ModelAttribute(name = "instructors")
-    public List<Instructor> instructorList() {
-        return instructorService.getAllInstructors();
+    public List<InstructorDto> instructorList() {
+        List<Instructor> instructors = instructorService.getAllInstructors();
+        List<InstructorDto> instructorDtoList = instructors.stream().map(instructorMapper::toDto).collect(Collectors.toList());
+        return instructorDtoList;
     }
 
     @ExceptionHandler({EntityNotFoundException.class})

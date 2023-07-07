@@ -2,6 +2,8 @@ package com.example.demo.model.service;
 
 import com.example.demo.model.entity.Course;
 import com.example.demo.model.entity.Instructor;
+import com.example.demo.model.entity.dto.CourseDto;
+import com.example.demo.model.entity.dto.mapper.CourseMapper;
 import com.example.demo.model.repo.CourseRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,6 +18,7 @@ import javax.persistence.EntityNotFoundException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Transactional
 @Service
@@ -24,8 +27,9 @@ public class CourseService {
 
     private final CourseRepo courseRepo;
     private final InstructorService instructorService;
+    private final CourseMapper courseMapper;
 
-    public Page<Course> search(
+    public Page<CourseDto> search(
             Optional<String> name,
             Optional<Course.Level> level,
             Pageable pageable
@@ -42,17 +46,18 @@ public class CourseService {
                 -> cb.like(cb.lower(root.get("name")), name.get().toLowerCase().concat("%")) : Specification.where(null);
 
         List<Course> courses = courseRepo.findAll(whichName.and(whichLevel));
-        List<Course> list;
+        List<CourseDto> courseDtoList = courses.stream().map(courseMapper::toDto).collect(Collectors.toList());
+        List<CourseDto> list;
 
-        if (courses.size() < startItem) {
+        if (courseDtoList.size() < startItem) {
             list = Collections.emptyList();
         } else {
             int toIndex = Math.min(startItem + pageSize, courses.size());
-            list = courses.subList(startItem, toIndex);
+            list = courseDtoList.subList(startItem, toIndex);
         }
 
 
-        return new PageImpl<>(list, PageRequest.of(currentPage, pageSize), courses.size());
+        return new PageImpl<>(list, PageRequest.of(currentPage, pageSize), courseDtoList.size());
     }
 
     public Course createCourse(Course course) {
